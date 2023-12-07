@@ -1,8 +1,8 @@
-const ProductsStorage = require('../managers/productsManager')
+const ProductsMemory = require('../storage/productsMemory')
 
 class ProductsService {
     constructor () {
-        this.storage = new ProductsStorage()
+        this.storage = new ProductsMemory()
     }
     
     getProducts () {

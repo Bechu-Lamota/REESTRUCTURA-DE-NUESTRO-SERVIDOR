@@ -27,37 +27,9 @@ app.use(passport.initialize())
 const PORT = 8080
 const httpServer = app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`))
 
-const io = new Server(httpServer)
-const users = []
-const messages = []
-
-io.on('connection', socket => {
-  console.log('Nuevo cliente conectado')
-
-  socket.on('joinChat', username => {
-    users.push({
-      name: username,
-      socketId: socket.id
-    })
-
-    socket.broadcast.emit('notification', `${username} se ha unido al chat`)
-
-    socket.emit('notification', `Bienvenid@ ${username}`)
-    socket.emit('messages', JSON.stringify(messages))
-  })
-
-  socket.on('newMessage', message => {
-    const user = users.find(user => user.socketId === socket.id)
-
-    const newMessage = {
-      message,
-      user: user.name
-    }
-    messages.push(newMessage)
-
-    io.emit('message', JSON.stringify(newMessage))
-  }) 
-})
+const io = new Server(httpServer) // Primero inicializamos io antes del Controller
+const MessagesController = require('../controllers/messagesController')
+const messagesController = new MessagesController(io)
 
 app.get('/', (req, res) => {
   res.json({
@@ -70,7 +42,6 @@ app.get('/', (req, res) => {
 const DB = require('../db/singleton')
 const settings = require('../command/commander')
 DB.getConnection(settings)
-
 
 module.exports = {
   app,
